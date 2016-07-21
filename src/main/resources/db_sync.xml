@@ -1,0 +1,13 @@
+<sync>
+	<db url="jdbc:mysql://localhost/crac_db" name="test" user="root" password="">
+		<table name="user">
+			<map from="id" to="user_id"></map>
+			<map from="login" to="name"></map>
+			<map from="name" to="first_name"></map>
+			<map to="email"></map>
+			<map to="last_name"></map>
+			<map to="phone"></map>
+			<map to="role" default="USER"></map>
+		</table>
+	</db>
+</sync>
