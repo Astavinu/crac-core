@@ -1,13 +1,28 @@
 <sync>
-	<db url="jdbc:mysql://localhost/crac_db" name="test" user="root" password="">
-		<table name="user">
+	<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" interval="2">
+		<table from="user" to="CracUser">
 			<map from="id" to="user_id"></map>
 			<map from="login" to="name"></map>
 			<map from="name" to="first_name"></map>
-			<map to="email"></map>
-			<map to="last_name"></map>
-			<map to="phone"></map>
+			<map from="password" to="password"></map>
+			<map to="email" default="0"></map>
+			<map to="last_name" default="0"></map>
+			<map to="phone" default="0"></map>
 			<map to="role" default="USER"></map>
 		</table>
 	</db>
 </sync>
+<import>
+	<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" done="true">
+		<table from="user" to="CracUser">
+			<map from="id" to="user_id"></map>
+			<map from="login" to="name"></map>
+			<map from="name" to="first_name"></map>
+			<map from="password" to="password"></map>
+			<map to="email" default="0"></map>
+			<map to="last_name" default="0"></map>
+			<map to="phone" default="0"></map>
+			<map to="role" default="USER"></map>
+		</table>
+	</db>
+</import>
