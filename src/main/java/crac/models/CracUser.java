@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,16 +13,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.persistence.JoinColumn;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -30,6 +27,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import crac.enums.Role;
 import crac.relationmodels.UserCompetenceRel;
 import crac.relationmodels.UserTaskRel;
+import crac.sync.model.UserMap;
 
 /**
  * The cracUser-entity.
@@ -125,6 +123,9 @@ public class CracUser {
 	@OneToOne
     @JoinColumn(name = "user_image")
 	private Attachment userImage;
+	
+	@Embedded
+	private UserMap map;
 
 	/**
 	 * constructors
@@ -284,6 +285,14 @@ public class CracUser {
 
 	public void setTaskRelationships(Set<UserTaskRel> taskRelationships) {
 		this.taskRelationships = taskRelationships;
+	}
+
+	public UserMap getMap() {
+		return map;
+	}
+
+	public void setMap(UserMap map) {
+		this.map = map;
 	}
 
 }
