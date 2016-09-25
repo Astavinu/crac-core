@@ -1,28 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <sync>
-	<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" interval="2">
-		<table from="user" to="CracUser">
-			<map from="id" to="user_id"></map>
-			<map from="login" to="name"></map>
-			<map from="name" to="first_name"></map>
-			<map from="password" to="password"></map>
-			<map to="email" default="0"></map>
-			<map to="last_name" default="0"></map>
-			<map to="phone" default="0"></map>
-			<map to="role" default="USER"></map>
-		</table>
-	</db>
+	<synchronize>
+		<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" interval="2">
+			<table from="user" to="CracUser">
+				<map from="id" to="user_id"></map>
+				<map from="login" to="name"></map>
+				<map from="name" to="first_name"></map>
+				<map from="password" to="password"></map>
+				<map to="email" default="0"></map>
+				<map to="last_name" default="0"></map>
+				<map to="phone" default="0"></map>
+				<map to="role" default="USER"></map>
+			</table>
+		</db>
+	</synchronize>
+	<import>
+		<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" done="true">
+			<table from="user" to="CracUser">
+				<map from="id" to="user_id"></map>
+				<map from="login" to="name"></map>
+				<map from="name" to="first_name"></map>
+				<map from="password" to="password"></map>
+				<map to="email" default="0"></map>
+				<map to="last_name" default="0"></map>
+				<map to="phone" default="0"></map>
+				<map to="role" default="USER"></map>
+			</table>
+		</db>
+	</import>
 </sync>
-<import>
-	<db url="jdbc:mysql://localhost/test" name="test" user="root" password="" done="true">
-		<table from="user" to="CracUser">
-			<map from="id" to="user_id"></map>
-			<map from="login" to="name"></map>
-			<map from="name" to="first_name"></map>
-			<map from="password" to="password"></map>
-			<map to="email" default="0"></map>
-			<map to="last_name" default="0"></map>
-			<map to="phone" default="0"></map>
-			<map to="role" default="USER"></map>
-		</table>
-	</db>
-</import>
