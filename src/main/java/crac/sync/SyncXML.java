@@ -1,6 +1,7 @@
 package crac.sync;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,7 +9,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 
 public class SyncXML {
 	/* @Value("${dbsync.path}") */
-	public static final String PATH = "db_sync.xml";
+	public static final String PATH = "src/main/resources/db_sync.xml";
 
 	public static final String ROOT_NODE = "sync";
 
@@ -44,19 +44,39 @@ public class SyncXML {
 	private SyncXMLRoot root;
 
 	public class SyncXMLRoot {
+		public ArrayList<SyncXMLDBObject> synchronizeDatabases;
+		public ArrayList<SyncXMLDBObject> importDatabases;
+		
 		public SyncXMLRoot(ArrayList<SyncXMLDBObject> synchronizeDatabases,
 				ArrayList<SyncXMLDBObject> importDatabases) {
 			this.synchronizeDatabases = synchronizeDatabases;
 			this.importDatabases = importDatabases;
 		}
-
-		public ArrayList<SyncXMLDBObject> synchronizeDatabases;
-		public ArrayList<SyncXMLDBObject> importDatabases;
+		
+		public String toXML() {
+			StringBuilder b = new StringBuilder();
+			b.append("<"+ROOT_NODE+">\n");
+			
+			b.append("\t<"+SYNCHRONIZE_NODE+">\n");
+			for (SyncXMLDBObject o : synchronizeDatabases) {
+				b.append(o.toXML());
+			}
+			b.append("\t</"+SYNCHRONIZE_NODE+">\n");
+			
+			b.append("\t<"+IMPORT_NODE+">\n");
+			for (SyncXMLDBObject o : importDatabases) {
+				b.append(o.toXML());
+			}
+			b.append("\t</"+IMPORT_NODE+">\n");
+			
+			b.append("</"+ROOT_NODE+">\n");
+			return b.toString();
+		}
 	}
 
 	public class SyncXMLDBObject {
 		public SyncXMLDBObject(String url, String name, String user,
-				String password, int interval, boolean done,
+				String password, int interval, Boolean done,
 				ArrayList<SyncXMLTableObject> tables) {
 			this.url = url;
 			this.name = name;
@@ -72,15 +92,26 @@ public class SyncXML {
 		public String user;
 		public String password;
 		public int interval;
-		public boolean done;
+		public Boolean done;
 
 		public ArrayList<SyncXMLTableObject> tables;
 
 		@Override
 		public String toString() {
 			return "[SyncXMLDBObject] url = " + url + ", name = " + name
-					+ ", user = " + user + ", password = " + password
 					+ ", interval = " + interval + ", done = " + done;
+		}
+		
+		public String toXML() {
+			StringBuilder b = new StringBuilder();
+			b.append("\t\t<"+DB_NODE+" "+DB_URL_ATT+"=\""+url+"\" "+DB_NAME_ATT+"=\""+name+"\" "+DB_USER_ATT+"=\""+user+"\" "+DB_PASSWORD_ATT+"=\""+password+"\" "+(interval >= 0 ? (DB_INTERVAL_ATT+"=\""+interval+"\" ") : "")+(done != null ? (DB_DONE_ATT+"=\""+done+"\"") : "")+">\n");
+			
+			for (SyncXMLTableObject o : tables) {
+				b.append(o.toXML());
+			}
+			
+			b.append("\t\t</"+DB_NODE+">\n");
+			return b.toString();
 		}
 	}
 
@@ -101,6 +132,18 @@ public class SyncXML {
 		public String toString() {
 			return "[SyncXMLTableObject] from = " + from + ", to = " + to;
 		}
+		
+		public String toXML() {
+			StringBuilder b = new StringBuilder();
+			b.append("\t\t\t<"+TABLE_NODE+" "+TABLE_FROM_ATT+"=\""+from+"\" "+TABLE_TO_ATT+"=\""+to+"\">\n");
+			
+			for (SyncXMLMapObject o : mappings) {
+				b.append(o.toXML());
+			}
+			
+			b.append("\t\t\t</"+TABLE_NODE+">\n");
+			return b.toString();
+		}
 	}
 
 	public class SyncXMLMapObject {
@@ -118,6 +161,10 @@ public class SyncXML {
 		public String toString() {
 			return "[SyncXMLMapObject] from = " + from + ", to = " + to
 					+ ", default = " + defaultValue;
+		}
+		
+		public String toXML() {
+			return "\t\t\t\t<"+MAP_NODE+" "+(from.length() > 0 ? (MAP_FROM_ATT+"=\""+from+"\" ") : "")+MAP_TO_ATT+"=\""+to+"\" "+(defaultValue.length() > 0 ? (MAP_DEFAULT_ATT+"=\""+defaultValue+"\"") : "") + "></"+MAP_NODE+">\n";
 		}
 	}
 
@@ -186,15 +233,18 @@ public class SyncXML {
 		String password = parseAttribute(n, DB_PASSWORD_ATT);
 
 		// can have
-		int interval = 0;
+		int interval = -1;
 		try {
-			interval = Integer
-					.parseInt(parseAttribute(n, DB_INTERVAL_ATT, false));
+			String att = parseAttribute(n, DB_INTERVAL_ATT, false);
+			if (att.length() > 0)
+				interval = Integer.parseInt(att);
 		} catch (Exception e) {
 		}
-		boolean done = false;
+		Boolean done = null;
 		try {
-			done = Boolean.parseBoolean(parseAttribute(n, DB_DONE_ATT, false));
+			String att = parseAttribute(n, DB_DONE_ATT, false);
+			if (att.length() > 0)
+				done = Boolean.parseBoolean(att);
 		} catch (Exception e) {
 		}
 
@@ -259,5 +309,23 @@ public class SyncXML {
 			return "";
 		else
 			return item.getTextContent();
+	}
+	
+	public String toXML() {
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				+ root.toXML();
+	}
+	
+	public void write() {
+		File xmlFile = new File(PATH);
+		
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(xmlFile, false); // overwrite
+			writer.write(toXML());
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

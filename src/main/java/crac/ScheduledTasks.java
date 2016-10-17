@@ -52,12 +52,12 @@ public class ScheduledTasks implements SchedulingConfigurer {
 
 				// set next interval
 				nextExecutionTime.add(Calendar.MILLISECOND,
-						syncManager().getInterval());
+						syncManager().getIntervalMS());
 				return nextExecutionTime.getTime();
 			}
 		});
 
-		// example, the trigger allows live runtime task execution time changes
+		// example: the trigger allows live runtime task execution time changes (add new tasks like this)
 		// taskRegistrar.addTriggerTask(new Runnable() {
 		// @Override
 		// public void run() {
